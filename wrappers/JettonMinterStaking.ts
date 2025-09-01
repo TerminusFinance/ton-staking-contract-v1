@@ -21,6 +21,8 @@ export type JettonMinterStakingConfig = {
     wallet_code: Cell;
     state: number;
     price: bigint;
+    withdraw_minimum?: bigint;
+    withdraw_address?: Address;
 };
 
 export function jettonMinterConfigToCell(
@@ -30,9 +32,9 @@ export function jettonMinterConfigToCell(
         .storeCoins(0)
         .storeBit(config.state)
         .storeUint(config.price, 64)
-        .storeCoins(1000000000)
+        .storeCoins(config.withdraw_minimum || 1000000000)
         .storeAddress(config.admin)
-        .storeAddress(config.admin)
+        .storeAddress(config.withdraw_address || config.admin)
         .storeRef(config.content)
         .storeRef(config.wallet_code)
         .endCell();

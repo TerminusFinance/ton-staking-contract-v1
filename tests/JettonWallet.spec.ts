@@ -31,9 +31,7 @@ describe('JettonWallet', () => {
     let content: Cell;
     let state: number;
     let price: BigInt;
-    let cap: BigInt;
-    let Staking_start_date: number;
-    let Staking_end_date: number;
+    let withdraw_minimum: BigInt;
 
     beforeAll(async () => {
         minter_code = await compile('JettonMinterStaking');
@@ -44,9 +42,7 @@ describe('JettonWallet', () => {
         wallet_code = await compile('JettonWallet');
         state = process.env.JETTON_STATE ? Number(process.env.JETTON_STATE).valueOf() : 0;
         price = process.env.JETTON_PRICE ? BigInt(process.env.JETTON_PRICE).valueOf() : BigInt(1000000000);
-        cap = process.env.JETTON_CAP ? BigInt(process.env.JETTON_CAP).valueOf() : BigInt(1000000000);
-        Staking_start_date = process.env.JETTON_Staking_START_DATE ? Number(process.env.JETTON_Staking_START_DATE).valueOf() : 0;
-        Staking_end_date = process.env.JETTON_Staking_END_DATE ? Number(process.env.JETTON_Staking_END_DATE).valueOf() : 0;
+        withdraw_minimum = process.env.WITHDRAW_MINIMUM ? BigInt(process.env.WITHDRAW_MINIMUM).valueOf() : BigInt(1000000000);
 
         jettonMinter = blockchain.openContract(
             JettonMinterStaking.createFromConfig(
@@ -56,9 +52,7 @@ describe('JettonWallet', () => {
                     content,
                     wallet_code,
                     price: price as bigint,
-                    cap: cap as bigint,
-                    Staking_start_date,
-                    Staking_end_date,
+                    withdraw_minimum: withdraw_minimum as bigint,
                 },
                 minter_code));
         userWallet = async (address: Address) => blockchain.openContract(

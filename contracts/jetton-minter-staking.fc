@@ -42,11 +42,13 @@ const int provide_address_gas_consumption = 10000000;
   );
 }
 
-int division(int a, int b) asm "x{A904} s,";   ;; 65 gas units
-int multiply(int a, int b) asm "x{A8} s,";     ;; 65 gas units
-
 int multiply_f(int a, int b) { ;; multiply with factor
-    return division(multiply(a, b), 1000000000 {- 1e9 -});
+    ;; Avoid integer overflow by checking if we can simplify first
+    if (b % 1000000000 == 0) {
+        return a * (b / 1000000000);
+    } else {
+        return (a * b) / 1000000000;
+    }
 }
 
 () mint_tokens(slice to_address, cell jetton_wallet_code, int amount, cell master_msg) impure {

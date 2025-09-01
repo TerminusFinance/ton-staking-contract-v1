@@ -9,7 +9,7 @@ export async function run(provider: NetworkProvider) {
     const wallet_code = await compile('JettonWallet');
     const state = process.env.JETTON_STATE ? Number(process.env.JETTON_STATE).valueOf() : 0;
     const price = process.env.JETTON_PRICE ? BigInt(process.env.JETTON_PRICE).valueOf() : BigInt(1000000000);
-    const cap = process.env.JETTON_CAP ? BigInt(process.env.JETTON_CAP).valueOf() : BigInt(1000000000);
+    const withdraw_minimum = process.env.WITHDRAW_MINIMUM ? BigInt(process.env.WITHDRAW_MINIMUM).valueOf() : BigInt(1000000000);
 
     const minter = provider.open(
         JettonMinterStaking.createFromConfig(
@@ -18,7 +18,8 @@ export async function run(provider: NetworkProvider) {
                 content,
                 wallet_code,
                 state,
-                price
+                price,
+                withdraw_minimum
             },
             await compile('JettonMinterStaking')
         )
