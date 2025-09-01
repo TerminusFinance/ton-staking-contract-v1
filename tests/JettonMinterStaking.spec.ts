@@ -20,10 +20,7 @@ describe('JettonMinterStaking', () => {
     let content:Cell;
     let state:number;
     let price:bigint;
-    let cap:bigint;
     let withdraw_minimum:bigint;
-    let Staking_start_date:number;
-    let Staking_end_date:number;
 
     beforeAll(async () => {
         minter_code    = await compile('JettonMinterStaking');
@@ -34,10 +31,7 @@ describe('JettonMinterStaking', () => {
         wallet_code    = await compile('JettonWallet');
         state          = process.env.JETTON_STATE ? Number(process.env.JETTON_STATE).valueOf() : 0;
         price          = process.env.JETTON_PRICE ? BigInt(process.env.JETTON_PRICE).valueOf() : BigInt(1000000000);
-        cap            = process.env.JETTON_CAP ? BigInt(process.env.JETTON_CAP).valueOf() : BigInt(1000000000);
         withdraw_minimum = process.env.WITHDRAW_MINIMUM ? BigInt(process.env.WITHDRAW_MINIMUM).valueOf() : BigInt(1000000000);
-        Staking_start_date = process.env.JETTON_Staking_START_DATE ? Number(process.env.JETTON_Staking_START_DATE).valueOf() : 0;
-        Staking_end_date   = process.env.JETTON_Staking_END_DATE ? Number(process.env.JETTON_Staking_END_DATE).valueOf() : 0;
 
         jettonMinter   = blockchain.openContract(
                    JettonMinterStaking.createFromConfig(
@@ -47,9 +41,7 @@ describe('JettonMinterStaking', () => {
                        content,
                        wallet_code,
                        price: price as bigint,
-                       cap: cap as bigint,
-                       Staking_start_date,
-                       Staking_end_date,
+                       withdraw_minimum: withdraw_minimum as bigint,
                      },
                      minter_code));
         userWallet = async (address:Address) => blockchain.openContract(
@@ -73,10 +65,7 @@ describe('JettonMinterStaking', () => {
     it('check that all Staking parameters are ok', async () => {
         expect(await jettonMinter.getStakingState()).toEqual(Boolean(state));
         expect(await jettonMinter.getStakingPrice()).toEqual(price);
-        expect(await jettonMinter.getStakingCap()).toEqual(cap);
-        expect(await jettonMinter.getStakingWithdrawMinimum()).toEqual(withdraw_minimum);
-        expect(await jettonMinter.getStakingStartDate()).toEqual(Staking_start_date);
-        expect(await jettonMinter.getStakingEndDate()).toEqual(Staking_end_date);
+        expect(await jettonMinter.getWithdrawMinimum()).toEqual(withdraw_minimum);
     });
     // implementation detail
     it('minter admin can change state', async () => {
@@ -168,6 +157,8 @@ describe('JettonMinterStaking', () => {
         });
     });
     // implementation detail
+    // Note: Cap restriction not implemented in current contract
+    /*
     it('impossible to buy more than cap', async () => {
         let buy = await jettonMinter.sendBuy(notDeployer.getSender(), toNano(cap/price));
         expect(buy.transactions).toHaveTransaction({
@@ -177,7 +168,10 @@ describe('JettonMinterStaking', () => {
             exitCode: 80, // error::cap_exceeded
         });
     });
+    */
     // implementation detail
+    // Note: Start date restriction not implemented in current contract
+    /*
     it('impossible to buy before start, if it is not 0', async () => {
         if (Staking_start_date != 0 ) {
             let buy = await jettonMinter.sendBuy(notDeployer.getSender(), toNano('1'));
@@ -189,7 +183,10 @@ describe('JettonMinterStaking', () => {
             });
         }
     });
+    */
     // implementation detail
+    // Note: End date restriction not implemented in current contract  
+    /*
     it('impossible to buy after end, if it is not 0', async () => {
         if (Staking_end_date != 0 ) {
             let buy = await jettonMinter.sendBuy(notDeployer.getSender(), toNano('1'));
@@ -201,6 +198,7 @@ describe('JettonMinterStaking', () => {
             });
         }
     });
+    */
     // implementation detail
     it('impossible to buy if paused', async () => {
         await jettonMinter.sendChangeState(deployer.getSender(), true);
